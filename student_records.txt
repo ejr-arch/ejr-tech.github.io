@@ -1,0 +1,5 @@
+1,Kwagala Elvis,2500700365,76,98,79,84.33,B
+2,luyobya vicent,25007003983,64,94,94,84.00,B
+3,Namakula Enid Raniah,2500700647,74,84,89,82.33,B
+4,Mirembe Sheillah Mary,2500700368,75,84,93,84.00,B
+5,Ayuen Jok,25056746354,73,94,37,68.00,B
