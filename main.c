@@ -2,8 +2,9 @@
 #include<stdio.h>
 #include<string.h>
 
+
 int main(int argc, char *argv[]){	//argc-argument count ~argv-argument vector
-	struct student s1; 
+	student s1; 
 	if(argc<2){		//if no surplus arguments are provided like ./student_records
 		menu(s1);
 		return 0;
@@ -34,3 +35,5 @@ int main(int argc, char *argv[]){	//argc-argument count ~argv-argument vector
 	}		
 	return 0;
 }
+
+

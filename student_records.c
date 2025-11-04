@@ -4,20 +4,23 @@
 #include<string.h>
 #include<ctype.h>
 
-FILE *infile;
-int count_records() {
-    infile = fopen("student_records.txt", "r");
-    if (infile == NULL)
-        return 0; 		// if file doesn't exist yet
+#define BUF_SIZE 1024
 
-    int count = 0;
-    char line[200];
-    while (fgets(line, sizeof(line), infile))
-        count++;
-    fclose(infile);
-    return count;
+FILE *infile;
+int count_records(){
+	infile = fopen("student_records.txt", "r"); 
+	if(infile==NULL){
+		printf("failed to open students records file!\n");
+		return 0; 		// if file doesn't exist yet
+	}
+	int count = 0;
+	char line[BUF_SIZE];
+	while (fgets(line, sizeof(line), infile)) count++;
+	fclose(infile);
+	return count;
 }
-void add_student(struct student s){
+
+void add_student( student s){
 	s.sn = count_records()+1;	//automatic numbering of record-- +1 such that it assigns the next number to the record
 	int i=0;
 	s.total=0;
@@ -57,8 +60,8 @@ void add_student(struct student s){
 void display(){
 	infile=fopen("student_records.txt","r");
 	if(infile == NULL){
-        printf("No records found.\n");
-        return;
+        	printf("No records found.\n");
+	        return;
 	}
 	char line[200];		//to store recordstring as program fetches it from file and splits it up to tokens separated by commas.
 
@@ -67,39 +70,39 @@ void display(){
 	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 
 	while(fgets(line,sizeof(line),infile)){
-	struct student s;
-	char *token = strtok(line, ",");
-	if (!token) continue; s.sn = atoi(token);
-	token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-	token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
-	token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
-	token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
-	token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
-	token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
-	token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
+		student s;
+		char *token = strtok(line, ",");
+		if (!token) continue; s.sn = atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
+		token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
+		token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
 
-	printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-	s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
-	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+		printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
+		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
+		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 	}
 	fclose(infile);
 }
-void search(struct student *s1){
+void search( student *s1){
 	int option, found=0;
 	char query[50];
 	char linefile[200];
 	char results[200];
 	infile = fopen("student_records.txt","r");
 	if(infile == NULL){
-        printf("No records found.\n");
-        return;
+		printf("No records found.\n");
+	        return;
 	}
 
 	FILE *result;
 	result = fopen("search_results.txt","w");
 	if(result == NULL){
-        printf("search history couldn't open!.\n");
-        return;
+        	printf("search history couldn't open!.\n");
+        	return;
 	}
 	//printf("no search snippet coded yet!\n");
 	printf("Search by\n1- Name\n2- Student ID\n");
@@ -139,19 +142,18 @@ void search(struct student *s1){
 			printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
 			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 			while(fgets(results,sizeof(results),result)){
-			char *token = strtok(results, ",");
-			if (!token) continue; s1->sn = atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-			token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
-			token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);	//s1->marks not s.marks b'se struct in function is declared as pointer 
-			token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
-			token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
-		
-			printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-			s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+				char *token = strtok(results, ",");
+				if (!token) continue; s1->sn = atoi(token);
+				token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
+				token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
+				token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
+				token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);	//s1->marks not s.marks b'se  in function is declared as pointer 
+				token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
+				token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
+				token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
+				printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
+				s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
+				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 			}
 			}else printf("no matches found!\n");
 			fclose(result);
@@ -186,18 +188,18 @@ void search(struct student *s1){
 				printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
 				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 				while(fgets(results,sizeof(results),result)){
-				char *token = strtok(results,",");
-				if (!token) continue; s1->sn = atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-				token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);//s1->marks not s.marks b'se struct in function is declared as pointer 
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
-				printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-				s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
-				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+					char *token = strtok(results,",");
+					if (!token) continue; s1->sn = atoi(token);
+					token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
+					token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
+					token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
+					token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);//s1->marks not s.marks b'se  in function is declared as pointer 
+					token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
+					token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
+					token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
+					printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
+					s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
+					printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 				}
 			}
 		//printf("no code yet\n");
@@ -208,166 +210,169 @@ void search(struct student *s1){
 		printf("invalid option entered!\nsearch is by name or id--only!\n");
 	}
 }
-void sort(struct student s1){
+
+
+void sort_by_name(char* names[], char linefile[], int field_count, int i, FILE *sorted, char line[]){
+	printf("");
+	for(int j=0;j<50;j++){
+		names[j] = (char *)malloc(256);
+	}
+	char *records[50];//this string of strings to store up to 50 records from file
+	for(int j=0;j<50;j++){
+		records[j] = (char *)malloc(256);
+	}
+	infile = fopen("student_records.txt","r");
+	if(infile==NULL){
+		printf("Error opening file!\n");
+		return;
+	}	
+	while(fgets(linefile,256,infile)){
+		strcpy(records[i],linefile);
+		field_count=0;
+		linefile[strcspn(linefile,"\n")]=0;	//strcspn returns integer position of \n in the string linefile, which gives linefile[10]=0; so \n is eliminated
+		char *token = strtok(linefile, ",");	
+		if(token==NULL)continue;
+		while(token!=NULL){
+			if(field_count==1){		//since we know from our setup, names are in field 2
+				strcpy(names[i], token);
+				break;
+			}
+			token = strtok(NULL,",");
+			field_count++;
+		}
+		i++;
+	}
+	fclose(infile);
+	char *temp;
+	for(int a=0;a<i;a++){
+		for(int b=a+1;b<i;b++){
+			if(strcasecmp(names[a],names[b])>0){	//difference in the ascii values is actually the return value
+				temp = names[a];
+				names[a] = names[b];		//uses bubble sort algorithm to arrange the names
+				names[b] = temp;
+					temp = records[a];
+				records[a] = records[b];		//uses bubble sort algorithm to arrange the names
+				records[b] = temp;
+			}
+		}
+	}
+	sorted = fopen("sorted_records.txt","w");
+	for(int j=0;j<i;j++){
+		fputs(records[j],sorted);
+		fputc('\n',sorted);
+	}
+	fclose(sorted);
+	sorted = fopen("sorted_records.txt","r");
+	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
+	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	while(fgets(line,256,sorted)){
+		student s;
+		char *token = strtok(line, ",");
+		if (!token) continue; s.sn = atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
+		token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
+		token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
+
+		printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
+		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
+		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	}
+}
+void sort_by_id(char* names[], char linefile[], int field_count, int i, FILE *sorted, char line[]){
+	printf("\n");
+	char *ids[50];//this string of strings to store up to 50 ids from file
+	for(int j=0;j<50;j++){
+		ids[j] = (char *)malloc(256);
+	}
+	char *record[50];//this string of strings to store up to 50 records from file
+	for(int j=0;j<50;j++){
+		record[j] = (char *)malloc(256);
+	}
+	infile = fopen("student_records.txt","r");
+	if(infile==NULL){
+		printf("Error opening file!\n");
+		return;
+	}	
+	while(fgets(linefile,256,infile)){
+		strcpy(record[i],linefile);
+		field_count=0;
+		linefile[strcspn(linefile,"\n")]=0;	//strcspn returns integer position of \n in the string linefile, which gives linefile[10]=0; so \n is eliminated
+		char *token = strtok(linefile, ",");	
+		if(token==NULL)continue;
+		while(token!=NULL){
+			if(field_count==2){		//since we know from our setup, ids are in field 3
+				strcpy(ids[i], token);
+				break;
+			}
+			token = strtok(NULL,",");
+			field_count++;
+		}
+		i++;
+	}
+	fclose(infile);
+	char *tmp;
+	for(int a=0;a<i;a++){
+		for(int b=a+1;b<i;b++){
+			if(atol(ids[a])>atol(ids[b])){	//difference in the ascii values is actually the return value
+				tmp = ids[a];
+				ids[a] = ids[b];		//uses bubble sort algorithm to arrange the names
+				ids[b] = tmp;
+					tmp = record[a];
+				record[a] = record[b];		//uses bubble sort algorithm to arrange the names
+				record[b] = tmp;
+			}
+		}
+	}
+	sorted = fopen("sorted_records.txt","w");
+	for(int j=0;j<i;j++){
+		fputs(record[j],sorted);
+		fputc('\n',sorted);
+	}
+	fclose(sorted);
+	sorted = fopen("sorted_records.txt","r");
+	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
+	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	while(fgets(line,256,sorted)){
+		student s;
+		char *token = strtok(line, ",");
+		if (!token) continue; s.sn = atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
+		token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
+		token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
+		token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
+		printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
+		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
+		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
+	}	
+}
+
+void sort( student s1){
 	int option;
 	printf("Sort by?\n1- Name\n2- Student ID\n");
 	printf("Enter option: ");
 	scanf(" %d",&option);
-	while(getchar()!='\n');
+	char *names[50];//this string of strings to store up to 50 names from file
+	char linefile[256];
+	int field_count,i=0;
+	int a,b;
+	FILE *sorted;
+	char line[200];
 	//printf("no sort snippet coded yet!\n");
 	switch(option){
 		case 1:
-			printf("");
-			char *names[50];//this string of strings to store up to 50 names from file
-			for(int j=0;j<50;j++){
-			names[j] = (char *)malloc(256);
-			}
-			char *records[50];//this string of strings to store up to 50 records from file
-			for(int j=0;j<50;j++){
-				records[j] = (char *)malloc(256);
-			}
-			char linefile[256];
-			int field_count,i=0;
-			infile = fopen("student_records.txt","r");
-			if(infile==NULL){
-				printf("Error opening file!\n");
-				return;
-			}	
-			while(fgets(linefile,sizeof(linefile),infile)){
-			strcpy(records[i],linefile);
-			field_count=0;
-			linefile[strcspn(linefile,"\n")]=0;	//strcspn returns integer position of \n in the string linefile, which gives linefile[10]=0; so \n is eliminated
-			char *token = strtok(linefile, ",");	
-			if(token==NULL)continue;
-				while(token!=NULL){
-					if(field_count==1){		//since we know from our setup, names are in field 2
-						strcpy(names[i], token);
-						break;
-					}
-					token = strtok(NULL,",");
-					field_count++;
-				}
-				i++;
-			}
-			fclose(infile);
-			int a,b;
-			char *temp;
-			for(a=0;a<i;a++){
-				for(b=a+1;b<i;b++){
-					if(strcasecmp(names[a],names[b])>0){	//difference in the ascii values is actually the return value
-						temp = names[a];
-						names[a] = names[b];		//uses bubble sort algorithm to arrange the names
-						names[b] = temp;
-
-						temp = records[a];
-						records[a] = records[b];		//uses bubble sort algorithm to arrange the names
-						records[b] = temp;
-					}
-				}
-			}
-			char line[200];
-			FILE *sorted;
-			sorted = fopen("sorted_records.txt","w");
-			for(int j=0;j<i;j++){
-			fputs(records[j],sorted);
-			fputc('\n',sorted);
-			}
-			fclose(sorted);
-			sorted = fopen("sorted_records.txt","r");
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-
-			while(fgets(line,sizeof(line),sorted)){
-			struct student s;
-			char *token = strtok(line, ",");
-			if (!token) continue; s.sn = atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-			token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
-			token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
-
-			printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-			s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			}
+			sort_by_name(names, linefile, field_count, i, sorted, line);
 		break;
 		case 2:
-			printf("\n");
-			char *ids[50];//this string of strings to store up to 50 ids from file
-			for(int j=0;j<50;j++){
-			ids[j] = (char *)malloc(256);
-			}
-			char *record[50];//this string of strings to store up to 50 records from file
-			for(int j=0;j<50;j++){
-				record[j] = (char *)malloc(256);
-			}
-			infile = fopen("student_records.txt","r");
-			if(infile==NULL){
-				printf("Error opening file!\n");
-				return;
-			}	
-			while(fgets(linefile,sizeof(linefile),infile)){
-			strcpy(record[i],linefile);
-			field_count=0;
-			linefile[strcspn(linefile,"\n")]=0;	//strcspn returns integer position of \n in the string linefile, which gives linefile[10]=0; so \n is eliminated
-			char *token = strtok(linefile, ",");	
-			if(token==NULL)continue;
-				while(token!=NULL){
-					if(field_count==2){		//since we know from our setup, ids are in field 3
-						strcpy(ids[i], token);
-						break;
-					}
-					token = strtok(NULL,",");
-					field_count++;
-				}
-				i++;
-			}
-			fclose(infile);
-			char *tmp;
-			for(a=0;a<i;a++){
-				for(b=a+1;b<i;b++){
-					if(atol(ids[a])>atol(ids[b])){	//difference in the ascii values is actually the return value
-						tmp = ids[a];
-						ids[a] = ids[b];		//uses bubble sort algorithm to arrange the names
-						ids[b] = tmp;
-
-						tmp = record[a];
-						record[a] = record[b];		//uses bubble sort algorithm to arrange the names
-						record[b] = tmp;
-					}
-				}
-			}
-			sorted = fopen("sorted_records.txt","w");
-			for(int j=0;j<i;j++){
-			fputs(record[j],sorted);
-			fputc('\n',sorted);
-			}
-			fclose(sorted);
-			sorted = fopen("sorted_records.txt","r");
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-
-			while(fgets(line,sizeof(line),sorted)){
-			struct student s;
-			char *token = strtok(line, ",");
-			if (!token) continue; s.sn = atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-			token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
-			token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
-			token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
-
-			printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-			s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			}	
+			sort_by_id(names, linefile, field_count, i, sorted,line);
 		break;
 		default:
 			printf("invalid option enetered!\n");
@@ -375,11 +380,16 @@ void sort(struct student s1){
 	}
 	return;
 }
+
 void edit(){
-	printf("no edit snippet included yet!\n");
+	printf("Enter name of student whose record you want to change: ");
+	char query[BUF_SIZE];
+	fgets(query,sizeof(query),stdin);
+	query[strcspn(query,"\n")]=0;
 	return;
 }
-void menu(struct student s1){
+
+void menu( student s1){
 //	printf("no menu snippet coded yet!\n");
 	int choice;
 	char c;
