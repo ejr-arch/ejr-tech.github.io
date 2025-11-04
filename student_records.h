@@ -13,14 +13,11 @@ typedef struct {	//structure declaration not in main() just to help me to use th
 
 int count_records();
 void add_student( student);
-
 void display();
-void edit();
-void search(student *); //*s1 to enable modifying of struct members
+void edit(student *);
+void search(student *); //* to enable modifying of struct members
 void sort(student );
 void menu( student );
 void loop( student );
-
-
 
 #endif

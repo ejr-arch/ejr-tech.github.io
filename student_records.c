@@ -57,19 +57,14 @@ void add_student( student s){
 	printf("Student record #%d created succesfully..!\n",s.sn);
 
 }
-void display(){
-	infile=fopen("student_records.txt","r");
-	if(infile == NULL){
-        	printf("No records found.\n");
-	        return;
-	}
-	char line[200];		//to store recordstring as program fetches it from file and splits it up to tokens separated by commas.
 
+void table_display(char line[],FILE *infile){
+	//printf("no code yet");
 	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 	printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
 	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 
-	while(fgets(line,sizeof(line),infile)){
+	while(fgets(line,256,infile)){		//to store recordstring as program fetches it from file and splits it up to tokens separated by commas.
 		student s;
 		char *token = strtok(line, ",");
 		if (!token) continue; s.sn = atoi(token);
@@ -85,8 +80,94 @@ void display(){
 		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
 		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 	}
+
+}
+
+void display(){
+	infile=fopen("student_records.txt","r");
+	if(infile == NULL){
+        	printf("No records found.\n");
+	        return;
+	}
+	char line[200];		
+	table_display(line,infile);
 	fclose(infile);
 }
+
+FILE *result;
+
+void search_by_name(student *s1){
+	int option, found=0;
+	char query[50];
+	char linefile[200];
+	char results[200];
+	printf("Enter student name to search for: ");
+	fgets(query,sizeof(query),stdin);
+	query[strcspn(query,"\n")]=0;		//such that name entered as query is stored without newline character
+	for(int i=0;query[i];i++){
+		query[i] = tolower((unsigned char)query[i]);//change entered name to lowercase such that the search is case insensitive
+	}
+	while(fgets(linefile,sizeof(linefile),infile)){
+		linefile[strcspn(linefile,"\n")]=0;			//2
+		for(int j=0;linefile[j];j++){
+			linefile[j] = tolower((unsigned char)linefile[j]);
+		}
+		if(strstr(linefile, query)!=NULL){
+			found++;
+			fputs(linefile,result);
+			fputc('\n',result);//append newline character(formally removed be4 search in 2) in result string to separate CSV strings from the file
+		}
+	}
+	fclose(infile);
+	fclose(result);
+	if(found>0){
+		printf("we found %d results as shown in table below!\n",found);
+		result = fopen("search_results.txt","r");
+		if(result == NULL){
+			printf("No records found.\n");
+			return;
+		}
+		table_display(linefile,result);	
+	}
+	else printf("no matches found!\n");
+	fclose(result);
+}
+
+void search_by_id(student *s1){
+	int option, found=0;
+	char query[50];
+	char linefile[200];
+	printf("Enter the ID number: ");
+	char id[15];
+	fgets(id,15,stdin);	
+	id[strcspn(id,"\n")]=0;
+	
+	result = fopen("search_results.txt","w");
+	if(result==NULL){
+		printf("couldn't open results!\n");
+		return;
+	}
+	infile = fopen("student_records.txt","r");
+	if(infile==NULL){
+		printf("no search records available!\n");
+		return;
+	}
+	while(fgets(linefile,sizeof(linefile),infile)){
+		if(strstr(linefile,id)!=NULL){
+			found++;
+			fputs(linefile,result);
+			fputc('\n',result);
+		}
+	}
+	fclose(result);
+	result = fopen("search_results.txt","r");
+	if(found>0){
+		table_display(linefile,result);
+	}else printf("no matches found..!\n");
+	fclose(result);
+	fclose(infile);
+}
+
 void search( student *s1){
 	int option, found=0;
 	char query[50];
@@ -97,120 +178,44 @@ void search( student *s1){
 		printf("No records found.\n");
 	        return;
 	}
-
-	FILE *result;
 	result = fopen("search_results.txt","w");
 	if(result == NULL){
         	printf("search history couldn't open!.\n");
         	return;
 	}
-	//printf("no search snippet coded yet!\n");
 	printf("Search by\n1- Name\n2- Student ID\n");
 	printf("Enter 1 or 2: \n");
 	scanf(" %d",&option);
 	while(getchar()!='\n');
 	switch(option){
 		case 1:
-			printf("Enter student name to search for: ");
-			fgets(query,sizeof(query),stdin);
-			query[strcspn(query,"\n")]=0;		//such that name entered as query is stored without newline character
-			for(int i=0;query[i];i++){
-				query[i] = tolower((unsigned char)query[i]);//change entered name to lowercase such that the search is case insensitive
-			}
-			while(fgets(linefile,sizeof(linefile),infile)){
-				linefile[strcspn(linefile,"\n")]=0;			//2
-				for(int j=0;linefile[j];j++){
-					linefile[j] = tolower((unsigned char)linefile[j]);
-				}
-				if(strstr(linefile, query)!=NULL){
-					found++;
-					fputs(linefile,result);
-					fputc('\n',result);//append newline character(formally removed be4 search in 2) in result string to separate CSV strings from the file
-				}
-			}
-			fclose(infile);
-			fclose(result);
-			if(found>0){
-			printf("we found %d results as shown in table below!\n",found);
-			result = fopen("search_results.txt","r");
-			if(result == NULL){
-				printf("No records found.\n");
-				return;
-			}
-
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-			printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			while(fgets(results,sizeof(results),result)){
-				char *token = strtok(results, ",");
-				if (!token) continue; s1->sn = atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-				token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);	//s1->marks not s.marks b'se  in function is declared as pointer 
-				token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
-				token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
-				printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-				s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
-				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-			}
-			}else printf("no matches found!\n");
-			fclose(result);
+			search_by_name(s1);
 		break;
 		case 2:
-			printf("Enter the ID number: ");
-			char *id;
-			fgets(id,15,stdin);	
-			id[strcspn(id,"\n")]=0;
-			
-			result = fopen("search_results.txt","w");
-			if(result==NULL){
-				printf("couldn't open results!\n");
-				return;
-			}
-			infile = fopen("student_records.txt","r");
-			if(infile==NULL){
-				printf("no search records available!\n");
-				return;
-			}
-			while(fgets(linefile,sizeof(linefile),infile)){
-				if(strstr(linefile,id)!=NULL){
-					found++;
-					fputs(linefile,result);
-					fputc('\n',result);
-				}
-			}
-			fclose(result);
-			result = fopen("search_results.txt","r");
-			if(found>0){
-				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-				printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-				printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-				while(fgets(results,sizeof(results),result)){
-					char *token = strtok(results,",");
-					if (!token) continue; s1->sn = atoi(token);
-					token = strtok(NULL, ",");if (!token) continue; strcpy(s1->name, token);//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-					token = strtok(NULL, ",");if (!token) continue; s1->student_id=atol(token);
-					token = strtok(NULL, ",");if (!token) continue; s1->marks[0]=atoi(token);
-					token = strtok(NULL, ",");if (!token) continue; s1->marks[1]=atoi(token);//s1->marks not s.marks b'se  in function is declared as pointer 
-					token = strtok(NULL, ",");if (!token) continue; s1->marks[2]=atoi(token);
-					token = strtok(NULL, ",");if (!token) continue; s1->average=atof(token);
-					token = strtok(NULL, ",");if (!token) continue; s1->grade=token[0];
-					printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-					s1->sn,s1->name,s1->student_id,s1->marks[0],s1->marks[1],s1->marks[2],s1->average,s1->grade);//in %-5d ~ -5 for alignment and indentation
-					printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-				}
-			}
-		//printf("no code yet\n");
-		fclose(result);
-		fclose(infile);
+			search_by_id(s1);
 		break;
 		default:
 		printf("invalid option entered!\nsearch is by name or id--only!\n");
 	}
 }
 
+void bubble_sort(char *names[],char *records[], int i){
+	char *temp;
+	for(int a=0;a<i;a++){
+		for(int b=a+1;b<i;b++){
+			if(strcasecmp(names[a],names[b])>0){	//difference in the ascii values is actually the return value
+				temp = names[a];
+				names[a] = names[b];		//uses bubble sort algorithm to arrange the names
+				names[b] = temp;
+				
+				temp = records[a];
+				records[a] = records[b];		//uses bubble sort algorithm to arrange the names
+				records[b] = temp;
+			}
+		}
+	}
+
+}
 
 void sort_by_name(char* names[], char linefile[], int field_count, int i, FILE *sorted, char line[]){
 	printf("");
@@ -243,19 +248,7 @@ void sort_by_name(char* names[], char linefile[], int field_count, int i, FILE *
 		i++;
 	}
 	fclose(infile);
-	char *temp;
-	for(int a=0;a<i;a++){
-		for(int b=a+1;b<i;b++){
-			if(strcasecmp(names[a],names[b])>0){	//difference in the ascii values is actually the return value
-				temp = names[a];
-				names[a] = names[b];		//uses bubble sort algorithm to arrange the names
-				names[b] = temp;
-					temp = records[a];
-				records[a] = records[b];		//uses bubble sort algorithm to arrange the names
-				records[b] = temp;
-			}
-		}
-	}
+	bubble_sort(names,records,i);
 	sorted = fopen("sorted_records.txt","w");
 	for(int j=0;j<i;j++){
 		fputs(records[j],sorted);
@@ -263,25 +256,8 @@ void sort_by_name(char* names[], char linefile[], int field_count, int i, FILE *
 	}
 	fclose(sorted);
 	sorted = fopen("sorted_records.txt","r");
-	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	while(fgets(line,256,sorted)){
-		student s;
-		char *token = strtok(line, ",");
-		if (!token) continue; s.sn = atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-		token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
-		token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
-
-		printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
-		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	}
+	table_display(line,sorted);
+	fclose(sorted);
 }
 void sort_by_id(char* names[], char linefile[], int field_count, int i, FILE *sorted, char line[]){
 	printf("\n");
@@ -315,16 +291,17 @@ void sort_by_id(char* names[], char linefile[], int field_count, int i, FILE *so
 		i++;
 	}
 	fclose(infile);
-	char *tmp;
+	char *temp;
 	for(int a=0;a<i;a++){
 		for(int b=a+1;b<i;b++){
-			if(atol(ids[a])>atol(ids[b])){	//difference in the ascii values is actually the return value
-				tmp = ids[a];
+			if(strcasecmp(ids[a],ids[b])>0){	//difference in the ascii values is actually the return value
+				temp = ids[a];
 				ids[a] = ids[b];		//uses bubble sort algorithm to arrange the names
-				ids[b] = tmp;
-					tmp = record[a];
+				ids[b] = temp;
+				
+				temp = record[a];
 				record[a] = record[b];		//uses bubble sort algorithm to arrange the names
-				record[b] = tmp;
+				record[b] = temp;
 			}
 		}
 	}
@@ -335,24 +312,7 @@ void sort_by_id(char* names[], char linefile[], int field_count, int i, FILE *so
 	}
 	fclose(sorted);
 	sorted = fopen("sorted_records.txt","r");
-	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	printf("|S/n  |Student_Name            |Student_id          |Student's_marks |Student_average  |Student_grade |\n");
-	printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	while(fgets(line,256,sorted)){
-		student s;
-		char *token = strtok(line, ",");
-		if (!token) continue; s.sn = atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; strcpy(s.name, token);	//if(!token)continue;--to test for null tokens before using them, to prevent segmentation fault
-		token = strtok(NULL, ",");if (!token) continue; s.student_id=atol(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[0]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[1]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.marks[2]=atoi(token);
-		token = strtok(NULL, ",");if (!token) continue; s.average=atof(token);
-		token = strtok(NULL, ",");if (!token) continue; s.grade=token[0];
-		printf("|%-5d|%-24s|%-20ld|%-4d, %-4d, %-4d|%17.2f|%-14c|\n",
-		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
-		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
-	}	
+	table_display(line,sorted);
 }
 
 void sort( student s1){
@@ -381,11 +341,12 @@ void sort( student s1){
 	return;
 }
 
-void edit(){
+void edit(student *s1){
 	printf("Enter name of student whose record you want to change: ");
 	char query[BUF_SIZE];
 	fgets(query,sizeof(query),stdin);
 	query[strcspn(query,"\n")]=0;
+	search_by_name(s1);
 	return;
 }
 

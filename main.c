@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){	//argc-argument count ~argv-argument vector
 		return 0;
 	}
 	else if(strcmp(argv[1],"edit")==0){		// ./student_records edit
-		edit();
+		edit(&s1);
 		return 0;
 	}
 	else {
