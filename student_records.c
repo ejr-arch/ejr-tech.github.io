@@ -55,7 +55,6 @@ void add_student( student s){
 	fprintf(infile,"%d,%s,%ld,%d,%d,%d,%.2f,%c\n", s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);	//%ld-for long integer of student id
 	fclose(infile);
 	printf("Student record #%d created succesfully..!\n",s.sn);
-
 }
 
 void table_display(char line[],FILE *infile){
@@ -80,7 +79,6 @@ void table_display(char line[],FILE *infile){
 		s.sn,s.name,s.student_id,s.marks[0],s.marks[1],s.marks[2],s.average,s.grade);//in %-5d ~ -5 for alignment and indentation
 		printf("+-----+------------------------+--------------------+----------------+-----------------+--------------+\n");
 	}
-
 }
 
 void display(){
@@ -214,7 +212,6 @@ void bubble_sort(char *names[],char *records[], int i){
 			}
 		}
 	}
-
 }
 
 void sort_by_name(char* names[], char linefile[], int field_count, int i, FILE *sorted, char line[]){
@@ -360,6 +357,7 @@ void menu( student s1){
 	printf("2- Display student information\n");
 	printf("3- Search for student information by name or id\n");
 	printf("4- Sort student information\n");
+	printf("5- Edit a student record\n");
 	printf("Enter an option to execute: ");
 	scanf(" %d",&choice);
 	while(getchar()!='\n');
@@ -375,6 +373,9 @@ void menu( student s1){
 		break;
 		case 4:
 			sort(s1);
+		break;
+		case 5:
+			edit(&s1);
 		break;
 		default:
 			printf("invalid option entered, please enter again!\n");
