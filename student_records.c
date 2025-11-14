@@ -97,7 +97,7 @@ FILE *result;
 void search_by_name(student *s1){
 	int option, found=0;
 	char query[50];
-	char linefile[200];
+	char linefile[200], temp[BUF_SIZE];
 	char results[200];
 	printf("Enter student name to search for: ");
 	fgets(query,sizeof(query),stdin);
@@ -106,13 +106,15 @@ void search_by_name(student *s1){
 		query[i] = tolower((unsigned char)query[i]);//change entered name to lowercase such that the search is case insensitive
 	}
 	while(fgets(linefile,sizeof(linefile),infile)){
+		strcpy(temp,linefile);
+		temp[strcspn(temp,"\n")]=0;	
 		linefile[strcspn(linefile,"\n")]=0;			//2
 		for(int j=0;linefile[j];j++){
 			linefile[j] = tolower((unsigned char)linefile[j]);
 		}
 		if(strstr(linefile, query)!=NULL){
 			found++;
-			fputs(linefile,result);
+			fputs(temp,result);
 			fputc('\n',result);//append newline character(formally removed be4 search in 2) in result string to separate CSV strings from the file
 		}
 	}
@@ -338,13 +340,39 @@ void sort( student s1){
 	return;
 }
 
-void edit(student *s1){
-	printf("Enter name of student whose record you want to change: ");
-	char query[BUF_SIZE];
-	fgets(query,sizeof(query),stdin);
-	query[strcspn(query,"\n")]=0;
-	search_by_name(s1);
+void deleteStudent(){
+	int c; 
+	FILE *temp;
+	temp = fopen("temp.txt","w");
+	if(!temp){
+		perror("failed to open temporary file!\n");
+		return;
+	}
+	printf("Enter name of student whose record you want to delete: ");
+	char query[BUF_SIZE],line[BUF_SIZE];
+	fgets(query,sizeof(query),stdin);	//picks input from stdin
+	query[strcspn(query,"\n")]=0;		//remove end of new line character
+	infile = fopen("student_records.txt","r");
+	if(infile==NULL){
+		perror("failed to open student records file!\n");
+		return;
+	}
+	while(fgets(line,sizeof(line),infile)){
+		if(strstr(line,query)!=NULL){	//if the line contains the query
+			continue;
+		}
+		fprintf(temp,"%s",line);	//write all fields in temp file except the one to be deleted
+	}
+	fclose(infile);
+	fclose(temp);
+	remove("student_records.txt");		//delete the existing students records file
+	rename("temp.txt","student_records.txt");//rename the temp file as students records file
+	printf("record deleted successfully!\n");
 	return;
+}
+
+void editStudent(){
+	printf("edit snippet not added yet!\n");
 }
 
 void menu( student s1){
@@ -357,7 +385,7 @@ void menu( student s1){
 	printf("2- Display student information\n");
 	printf("3- Search for student information by name or id\n");
 	printf("4- Sort student information\n");
-	printf("5- Edit a student record\n");
+	printf("5- Delete a student record\n");
 	printf("Enter an option to execute: ");
 	scanf(" %d",&choice);
 	while(getchar()!='\n');
@@ -375,7 +403,7 @@ void menu( student s1){
 			sort(s1);
 		break;
 		case 5:
-			edit(&s1);
+			deleteStudent();
 		break;
 		default:
 			printf("invalid option entered, please enter again!\n");

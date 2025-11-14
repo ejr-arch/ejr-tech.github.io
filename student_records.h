@@ -14,7 +14,8 @@ typedef struct {	//structure declaration not in main() just to help me to use th
 int count_records();
 void add_student( student);
 void display();
-void edit(student *);
+void deleteStudent();
+void editStudent();
 void search(student *); //* to enable modifying of struct members
 void sort(student );
 void menu( student );

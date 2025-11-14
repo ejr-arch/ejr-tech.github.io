@@ -25,10 +25,15 @@ int main(int argc, char *argv[]){	//argc-argument count ~argv-argument vector
 		sort(s1);
 		return 0;
 	}
-	else if(strcmp(argv[1],"edit")==0){		// ./student_records edit
-		edit(&s1);
+	else if(strcmp(argv[1],"delete")==0){		// ./student_records delete
+		deleteStudent();
 		return 0;
 	}
+	else if(strcmp(argv[1],"edit")==0){		// ./student_records edit
+		editStudent();
+		return 0;
+	}
+	
 	else {
 		printf("unknown command \"%s\" entered\n",argv[1]);	// any other commands are not catered for
 		return 0;
